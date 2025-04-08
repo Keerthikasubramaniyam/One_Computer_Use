@@ -1,3 +1,5 @@
+# //pip install pytest playwright
+# //playwright install
 import re
 from playwright.sync_api import Page, expect
 
