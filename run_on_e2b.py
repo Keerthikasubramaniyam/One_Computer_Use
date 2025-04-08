@@ -1,41 +1,24 @@
-# import asyncio
-# from e2b.sandbox.base import BaseSandbox
-
-# REPO_URL = "https://github.com/KeerthiSubramaniyam/One_Computer_Use"
-# REPO_DIR = "One_Computer_Use"
-# E2B_API_KEY = "e2b_2ee321a4c089ee3c92f42f886b2ce47d9ea6b4b2"  # 🔐 Replace with your actual key
-
-# async def main():
-#     print("🚀 Starting E2B sandbox...")
-#     sandbox = await BaseSandbox.create(api_key=E2B_API_KEY)
-
-#     print("🔄 Cloning your repo...")
-#     await sandbox.run(f"git clone {REPO_URL}")
-
-#     print("📦 Installing pytest and playwright...")
-#     await sandbox.run("pip install pytest playwright")
-
-#     print("🌐 Installing Playwright browsers...")
-#     await sandbox.run("playwright install")
-
-#     print("🧪 Running your test.py...")
-#     result = await sandbox.run(f"cd {REPO_DIR} && pytest test.py")
-
-#     print("\n✅ Test Output:\n")
-#     print(result.output)
-
-#     await sandbox.close()
-#     print("🧹 Sandbox closed.")
-
-# asyncio.run(main())
-
+# to run the code in E2B CLOUD :
+# pip install e2b
+# Steps how to run this code:
+# Starts an E2B remote sandbox session (a Linux virtual environment in the cloud).
+# Clones your GitHub repo inside the sandbox.
+# Installs Python dependencies required to:
+# Installs Chromium, Firefox, and WebKit in the sandbox.
+# Lists the contents of your cloned GitHub repo.
+# This runs your test file using python directly.
+# Prints the output and error logs from running the test file.
+# Marks the end of your sandbox session.
 
 import asyncio
-from e2b import Sandbox
+from e2b_code_interpreter import Sandbox  # Adjusted import based on your environment
+# from e2b import Sandbox
+from e2b.sandbox.commands.command_handle import CommandExitException
+
 
 REPO_URL = "https://github.com/Keerthikasubramaniyam/One_Computer_Use"
 REPO_DIR = "One_Computer_Use"
-E2B_API_KEY = "e2b_2ee321a4c089ee3c92f42f886b2ce47d9ea6b4b2"  # Replace with your actual key
+E2B_API_KEY = "your_e2b_api_key_here"  # Replace with your actual key
 
 async def main():
     print("🚀 Starting E2B sandbox...")
@@ -43,20 +26,24 @@ async def main():
 
     print("🔄 Cloning your repo...")
     sandbox.commands.run(f"git clone {REPO_URL}")
-    print("🔄 cloned your repo...")
+    print("✅ Repo cloned")
 
-    print("📦 Installing pytest and playwright...")
-    sandbox.commands.run("pip install pytest playwright")
-    version_result= sandbox.commands.run("pytest --version")
-    print(version_result.stdout)
-
+    print("📦 Installing pytest, playwright, and pytest-playwright...")
+    sandbox.commands.run("pip install pytest playwright pytest-playwright")
 
     print("🌐 Installing Playwright browsers...")
     sandbox.commands.run("playwright install")
 
-    print("🧪 Running your test.py...")
-    result = sandbox.commands.run(f"cd {REPO_DIR} && pytest playwright.py -s")
-    print("🧪 Completed your test.py...")
+    print("📂 Navigating into repo directory...")
+    sandbox.commands.run(f"cd {REPO_DIR}")
+
+    print("📁 Listing all files and folders inside the repo:")
+    list_files_result = sandbox.commands.run(f"ls {REPO_DIR}")
+    print(list_files_result.stdout)
+# 
+    print("🧪 Running pytest on test_playwright.py...")
+    # result = sandbox.commands.run(f"pytest test_playwright.py -s")
+    result = sandbox.commands.run(f"cd {REPO_DIR} && python test_playwright.py")
 
     print("\n✅ Test Output:\n")
     print(result.stdout)
@@ -64,7 +51,8 @@ async def main():
     print("\n🐞 Any Errors:\n")
     print(result.stderr)
 
-    # await sandbox.shutdown()  
-    print("🧹 Sandbox closed.")
+    # await sandbox.shutdown()  # optional: cleanup
+    print("🧹 Sandbox session ended.")
 
 asyncio.run(main())
+
